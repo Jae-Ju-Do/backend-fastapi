@@ -1,2 +1,11 @@
 # PyCharm Specific
 .idea
+
+/Code_Integration/.env
+/Code_Integration/Lotto.exe
+/Code_Integration/T1027.004_T1027.004_DynamicCompile.exe
+/Code_Integration/change_sha256/data/*
+
+/Code_Integration/model/save-1
+/Code_Integration/model/save-2
+/Code_Integration/model/save-3
