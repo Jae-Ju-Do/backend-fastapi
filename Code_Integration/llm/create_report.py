@@ -1,16 +1,14 @@
-import openai
-import os
-from dotenv import load_dotenv
-from openai import OpenAI
-import tiktoken
-from get_prompt import get_prompt
-from code_optimizer import code_optimizer
-import os
-import glob
 import json as json_lib
+import os
+import re
+
+import tiktoken
+from dotenv import load_dotenv
 from fpdf import FPDF
 from fpdf.enums import XPos, YPos
-import re
+from openai import OpenAI
+
+from get_prompt import get_prompt
 
 load_dotenv()
 
@@ -18,14 +16,18 @@ model_name = "gpt-4o-mini-2024-07-18"
 client = OpenAI(api_key=os.getenv("GPT_API_KEY"))
 encoding = tiktoken.encoding_for_model(model_name)
 
-
 class PDF(FPDF):
     def __init__(self):
         super().__init__()
+
+        # fonts 폴더에 해당 ttf 파일들이 있어야 함
+        font_dir = r"../../fonts/"
         self.set_auto_page_break(auto=True, margin=15)
-        self.add_font("Malgun", style="", fname="C:\\Windows\\Fonts\\malgun.ttf")
-        self.add_font("Malgun", style="B", fname="C:\\Windows\\Fonts\\malgunbd.ttf")
-        self.add_font("Emoji", style="", fname="C:\\Windows\\Fonts\\seguiemj.ttf")
+        self.add_font("Malgun", style="", fname=str(font_dir + "malgun.ttf"))
+        self.add_font("Malgun", style="B", fname=str(font_dir + "malgunbd.ttf"))
+
+        emoji_font_path = font_dir + "/seguiemj.ttf"
+        self.add_font("Emoji", style="", fname=str(emoji_font_path))
         self.add_page()
         self.set_font("Malgun", size=12)
 

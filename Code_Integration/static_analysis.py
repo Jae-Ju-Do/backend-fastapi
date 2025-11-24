@@ -1,11 +1,13 @@
-import os, sys, joblib
-import numpy as np
+import joblib
+import os
+
 import pandas as pd
-from extract_feature.function.extract_feature import ExtractFeatureFile
-from sklearn.preprocessing import StandardScaler, Normalizer
-from xgboost import XGBClassifier
-from lightgbm import LGBMClassifier
 from catboost import CatBoostClassifier
+from lightgbm import LGBMClassifier
+from xgboost import XGBClassifier
+
+from extract_feature.function.extract_feature import ExtractFeatureFile
+
 
 # hex 데이터 int로 변경
 def hex_to_decimal(hex_value):

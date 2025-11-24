@@ -1,11 +1,11 @@
-import openai
 import os
+
+import tiktoken
 from dotenv import load_dotenv
 from openai import OpenAI
-import tiktoken
-from .get_prompt import get_prompt
-from .code_optimizer import code_optimizer
 
+from .code_optimizer import code_optimizer
+from .get_prompt import get_prompt
 
 load_dotenv()
 

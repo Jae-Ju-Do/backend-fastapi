@@ -1,14 +1,26 @@
 from fpdf import FPDF
 from fpdf.enums import XPos, YPos
+from pathlib import Path
 import re
+
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+FONT_DIR = BASE_DIR / "fonts"
 
 class PDF(FPDF):
     def __init__(self):
         super().__init__()
+
+        # fonts 폴더에 해당 ttf 파일들이 있어야 함
         self.set_auto_page_break(auto=True, margin=15)
-        self.add_font("Malgun", style="", fname="C:\\Windows\\Fonts\\malgun.ttf")
-        self.add_font("Malgun", style="B", fname="C:\\Windows\\Fonts\\malgunbd.ttf")
-        self.add_font("Emoji", style="", fname="C:\\Windows\\Fonts\\seguiemj.ttf")
+        self.add_font("Malgun", style="", fname=str(FONT_DIR / "malgun.ttf"))
+        self.add_font("Malgun", style="B", fname=str(FONT_DIR / "malgunbd.ttf"))
+
+        emoji_font_path = FONT_DIR / "seguiemj.ttf"
+        if emoji_font_path.exists():
+            self.add_font("Emoji", style="", fname=str(emoji_font_path))
+        else:
+            print(f"경고: 이모지 폰트를 찾을 수 없습니다 ({emoji_font_path})")
+            self.add_font("Emoji", style="", fname=str(FONT_DIR / "malgun.ttf"))
         self.add_page()
         self.set_font("Malgun", size=12)
 
@@ -22,8 +34,15 @@ class PDF(FPDF):
         elif '🦠' in title: icon = '🦠'
 
         title_text = title.replace(icon, '').strip()
-        self.set_font("Emoji", size=15)
-        self.cell(12, 10, icon, new_x=XPos.RIGHT, new_y=YPos.TOP)
+
+        # 이모지가 있고 Emoji 폰트가 로드되었을 때만 이모지 출력
+        if icon and "Emoji" in self.fonts:
+            self.set_font("Emoji", size=15)
+            self.cell(12, 10, icon, new_x=XPos.RIGHT, new_y=YPos.TOP)
+        elif icon:
+            # 폰트가 없으면 공간만 확보하거나 스킵
+            self.cell(12, 10, "", new_x=XPos.RIGHT, new_y=YPos.TOP)
+
         self.set_font("Malgun", style="B", size=14)
         self.cell(0, 10, title_text, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         self.line(self.l_margin, self.get_y(), self.w - self.r_margin, self.get_y())
@@ -35,10 +54,13 @@ class PDF(FPDF):
         lines = []
         current_line = ""
         for char in text:
-            if self.get_string_width(current_line + char) > max_width:
-                lines.append(current_line)
-                current_line = char
-            else:
+            try:
+                if self.get_string_width(current_line + char) > max_width:
+                    lines.append(current_line)
+                    current_line = char
+                else:
+                    current_line += char
+            except:
                 current_line += char
         lines.append(current_line)
         for line in lines:
@@ -181,4 +203,5 @@ def generate_pdf_from_data(data, pdf_path, file_name):
         pdf.output(pdf_path)
         return {"status_code": 200, "content": pdf_path}
     except Exception as e:
+        print(f"PDF 생성 중 오류 발생: {e}")
         return {"status_code": 400, "content": f"pdf 생성 오류 : {e}"}
